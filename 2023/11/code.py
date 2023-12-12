@@ -19,7 +19,8 @@ if __name__ == "__main__":
     doublerows = sorted(list(doublerows))
     doublecols = sorted(list(doublecols))
 
-    def evaluate(age=1):
+    def evaluate(age=2):
+        age -= 1
         res = 0
         for i in range(len(galaxies)-1):
             r1, c1 = galaxies[i]
@@ -35,4 +36,4 @@ if __name__ == "__main__":
         return res
     
     print(evaluate())
-    print(evaluate(999_999))
+    print(evaluate(1_000_000))
