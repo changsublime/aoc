@@ -1,4 +1,4 @@
-import itertools
+import re
 
 if __name__ == "__main__":
     with open("2023/12/input.txt") as f:
@@ -20,38 +20,40 @@ if __name__ == "__main__":
             ] 
             for line in lines
         ]
+
+        def build_possibilities(cur, remainder, check):
+            nonlocal memo
+            if not remainder:
+                return cur
+            step = []
+            for c in cur:
+                comp = tuple([len(s) for s in re.split(r'\.+', c) if s][:-1])
+                if comp in memo:
+                    continue
+                elif len(comp) > 1 and comp != tuple(check[:len(comp)]):
+                    memo.add(comp)
+                    continue
+                elif remainder[0] == "?":
+                    step.append(c + ".")
+                    step.append(c + "#")
+                else:
+                    step.append(c + remainder[0])
+            return build_possibilities(step, remainder[1:], check)
+
         res = 0
         for line in lines:
             c = 0
             memo = set()
-            record = line[0]
-            l = len(record)
-            nums = list(map(int, line[1].split(",")))
-            dots = l - sum(nums)
-            # pick len(nums) spots to place nums into dots + 1 spots
-            ways = list(itertools.combinations(range(dots + 1), len(nums)))
-            ways = set([way + (dots,) for way in ways])
-            while ways:
-                correct = True
-                way = ways.pop()
-                cur = "." * (way[0] - 0)
-                for i in range(len(way)-1):
-                    cur += "#" * nums[i] + "." * (way[i+1] - way[i])
-                if not cur.startswith(tuple(memo)):
-                    for j in range(l):
-                        if record[j] == "?":
-                            continue
-                        elif record[j] != cur[j]:
-                            correct = False
-                            memo.add(str(cur[:j+1]))
-                            break
-                else:
-                    correct= False
-                if correct:
+            arrs = [int(i) for i in line[1].split(",")]
+            possibilities = build_possibilities([""], line[0], arrs)
+            for p in possibilities:
+                comp = [len(s) for s in re.split(r'\.+', p) if s]
+                if comp == arrs:
                     c += 1
-            res += c
-            print(c)
+            if c:
+                #print(c)
+                res += c
         return str(res)
 
     print("res: " + evaluate(lines))
-    print("p2res: " + evaluate(lines, 2))
+    print("p2res: " + evaluate(lines, 4))
